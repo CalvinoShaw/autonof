@@ -42,7 +42,21 @@ function App() {
   const { language, setLanguage } = useLanguage();
   const { user, token, logout, isLoading } = useAuth();
   const { config: systemConfig, loading: configLoading } = useSystemConfig();
-  const [route, setRoute] = useState(window.location.pathname);
+
+  // Normalize route by removing base path for GitHub Pages
+  const getRoute = () => {
+    const path = window.location.pathname;
+    // For GitHub Pages, the base is /autonof/
+    const base = '/autonof/';
+    // If path starts with base, remove it; otherwise keep original path
+    if (path.startsWith(base)) {
+      const normalizedPath = path.slice(base.length);
+      return normalizedPath || '/';
+    }
+    return path;
+  };
+
+  const [route, setRoute] = useState(getRoute());
 
   // 从URL hash读取初始页面状态（支持刷新保持页面）
   const getInitialPage = (): Page => {
@@ -160,7 +174,7 @@ function App() {
   // Handle routing
   useEffect(() => {
     const handlePopState = () => {
-      setRoute(window.location.pathname);
+      setRoute(getRoute());
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
